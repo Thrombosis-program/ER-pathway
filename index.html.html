@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ER Thrombosis Pathway — iMER VTE (PE/DVT)</title>
+<style>
+  :root{
+    --cream:#FBFBF8;--paper:#ffffff;--teal:#0E5A52;--teal-soft:#e4efed;
+    --ink:#133B35;--muted:#5c6d68;--line:#d3ddd9;
+    --admit:#b23b2e;--admit-soft:#f9ece2;
+    --pert:#b7791f;--pert-soft:#fbf1de;
+    --go:#0E5A52;--go-soft:#e2f0ea;
+    --mono:ui-monospace,Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--cream);color:var(--ink);font-family:var(--sans);
+    line-height:1.5;-webkit-font-smoothing:antialiased;padding:20px 15px 56px}
+  .wrap{max-width:600px;margin:0 auto}
+  .kicker{font-family:var(--mono);font-size:11px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--teal);margin:0 0 5px}
+  h1{font-size:21px;margin:0;font-weight:650;letter-spacing:-.01em}
+  .hero{background:linear-gradient(135deg,#0E5A52 0%,#0b463f 100%);
+    border-radius:16px;padding:20px 22px;margin-bottom:14px;
+    box-shadow:0 10px 24px -16px rgba(14,90,82,.6)}
+  .hero h1{color:#fff}
+  .hero-eyebrow{margin:0 0 6px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;
+    text-transform:uppercase;color:#bfe0d7}
+  .hero p{margin:7px 0 0;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;
+    text-transform:uppercase;color:#bfe0d7}
+  .sub{color:var(--muted);font-size:15px;line-height:1.5;margin:0 0 16px}
+  .viewtabs{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:18px}
+  .viewtabs button{border:none;background:#fff;color:var(--muted);font-family:var(--sans);
+    font-size:13.5px;font-weight:600;padding:9px 18px;cursor:pointer;transition:.12s}
+  .viewtabs button+button{border-left:1px solid var(--line)}
+  .viewtabs button.sel{background:var(--teal);color:#fff}
+  .viewtabs button:focus-visible{outline:2px solid var(--teal);outline-offset:-2px}
+  .flow-wrap{background:#fff;border:1px solid var(--line);border-radius:15px;padding:10px}
+  .flow-wrap svg{width:100%;height:auto;display:block}
+
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:16px;
+    box-shadow:0 6px 18px -14px rgba(19,59,53,.35)}
+
+  .group{margin-bottom:24px}
+  .group:last-of-type{margin-bottom:6px}
+  .grp-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px}
+  .grp-txt p{margin:0}
+  .grp-h{font-family:var(--sans);font-size:15px;font-weight:700;margin:0 0 2px !important;
+    color:#8a2e3b;position:relative;padding-left:13px}
+  .grp-h::before{content:"";position:absolute;left:0;top:3px;bottom:3px;width:4px;border-radius:2px;background:#8a2e3b}
+  .grp-h.admit,.grp-h.pert,.grp-h.go{color:#8a2e3b}
+  .grp-rule{font-size:13px;color:var(--muted)}
+  .quick{font-size:12px;font-weight:600;color:var(--teal);background:transparent;
+    border:1px solid var(--line);border-radius:8px;padding:6px 11px;cursor:pointer;
+    white-space:nowrap;flex-shrink:0}
+  .quick:hover{border-color:var(--teal)}
+  .quick:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+
+  .qitem{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+  .qitem:last-child{border-bottom:none}
+  .qlabel{flex:1;min-width:0;font-size:14.5px;line-height:1.35}
+  .qlabel .note{display:block;font-size:12px;color:var(--muted);margin-top:1px}
+
+  .seg{display:flex;flex-shrink:0;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+  .seg button{border:none;background:#fff;color:var(--muted);font-size:13px;font-weight:600;
+    padding:8px 15px;border-radius:0;cursor:pointer;transition:.12s}
+  .seg button+button{border-left:1px solid var(--line)}
+  .seg button:hover{background:#f3f6f5}
+  .seg button:focus-visible{outline:2px solid var(--teal);outline-offset:-2px}
+  .hestia .seg .yes.sel{background:var(--admit);color:#fff}
+  .hestia .seg .no.sel{background:var(--go);color:#fff}
+  .rv .seg .yes.sel{background:var(--pert);color:#fff}
+  .rv .seg .no.sel{background:var(--go);color:#fff}
+  .disc .seg .yes.sel{background:var(--go);color:#fff}
+  .disc .seg .no.sel{background:var(--admit);color:#fff}
+
+  .actions{display:flex;gap:10px;margin-top:4px;flex-wrap:wrap}
+  .btn-primary{font-family:var(--sans);font-size:14.5px;font-weight:600;border-radius:10px;
+    padding:12px 18px;cursor:pointer;border:1px solid transparent;background:var(--teal);color:#fff;transition:.15s}
+  .btn-primary:hover{background:#0b4a44}
+  .btn-primary:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+
+  .rec{border-radius:15px;padding:22px;border:1px solid;margin-bottom:16px}
+  .rec .v{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;margin:0 0 8px}
+  .rec h2{font-size:22px;margin:0 0 6px;letter-spacing:-.01em}
+  .rec p{margin:0 0 4px;font-size:14.5px}
+  .rec.admit{background:var(--admit-soft);border-color:#e6c6a4}.rec.admit .v{color:var(--admit)}
+  .rec.pert{background:var(--pert-soft);border-color:#e2c583}.rec.pert .v{color:var(--pert)}
+  .rec.go{background:var(--go-soft);border-color:#9ccbb8}.rec.go .v{color:var(--go)}
+
+  .rec-actions{display:flex;gap:8px;margin-top:16px}
+  .iconbtn{width:40px;height:40px;display:flex;align-items:center;justify-content:center;
+    border:1px solid var(--line);background:#fff;border-radius:10px;cursor:pointer;color:var(--teal);transition:.15s}
+  .iconbtn:hover{border-color:var(--teal);background:var(--teal-soft)}
+  .iconbtn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+  .iconbtn.ok{border-color:var(--go);background:var(--go-soft);color:var(--go)}
+  .iconbtn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+  .pertnote{display:block;font-weight:600;font-size:13.5px;color:var(--ink);
+    background:#fff;border:1px solid var(--line);border-radius:11px;padding:12px 15px;margin:12px 0 0}
+  .dose{background:#fff;border:1px solid var(--line);border-radius:11px;padding:13px 15px;margin-top:14px}
+  .dose .dt{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+  .rzrow{display:flex;align-items:center;gap:12px;padding:7px 0;border-bottom:1px solid var(--line)}
+  .rzlbl{flex:1;min-width:0;font-size:13.5px}
+  .rz .yes.sel,.rz .no.sel{background:var(--teal);color:#fff}
+  .drug{font-family:var(--sans);font-size:16px;font-weight:700;color:var(--teal);margin:12px 0 2px}
+  .drugwhy{font-size:12px;color:var(--muted);margin:0}
+  .dosetxt{font-size:13.5px;margin:0 0 7px}.dosetxt:last-child{margin:0}.dosetxt b{color:var(--ink)}
+
+  .trace{font-size:12.5px;color:var(--muted);margin-top:13px}
+  .trace ol{margin:6px 0 0;padding-left:18px}.trace li{margin-bottom:2px}
+
+  footer{margin-top:22px;padding-top:15px;border-top:1px solid var(--line);
+    font-size:11.5px;color:var(--muted);line-height:1.55}
+  .btn-ghost{font-family:var(--sans);font-size:14.5px;font-weight:600;border-radius:10px;
+    padding:12px 18px;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--teal);transition:.15s}
+  .btn-ghost:hover{border-color:var(--teal)}
+  .btn-ghost:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+  .nudge{font-size:12.5px;color:var(--pert);margin:10px 0 0;font-weight:600}
+  .gov p{margin:0 0 6px}
+  .hidden{display:none}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+  @media (max-width:420px){.seg button{padding:8px 13px}.qlabel{font-size:14px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero top-chrome">
+    <h1>ER Thrombosis Pathway</h1>
+  </header>
+  <p class="sub top-chrome">A decision aid for the disposition of patients with PE or DVT in the ER — <b>admission</b> or <b>discharge</b>.</p>
+
+  <div class="viewtabs top-chrome">
+    <button type="button" id="tabTool" class="sel">Checklist</button>
+    <button type="button" id="tabFlow">Flowchart</button>
+  </div>
+
+  <section class="card" id="form">
+    <div class="group">
+      <div class="grp-top">
+        <div class="grp-txt"><p class="grp-h admit">Hestia criteria</p></div>
+        <button type="button" class="quick" id="qh">None apply</button>
+      </div>
+      <div id="hList"></div>
+    </div>
+
+    <div class="group">
+      <div class="grp-top">
+        <div class="grp-txt"><p class="grp-h pert">Right heart strain (RV strain)</p></div>
+      </div>
+      <div id="rList"></div>
+    </div>
+
+    <div class="group">
+      <div class="grp-top">
+        <div class="grp-txt"><p class="grp-h go">Discharge readiness</p></div>
+      </div>
+      <div id="dList"></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="go">Get recommendation</button>
+    </div>
+    <p class="nudge hidden" id="nudge"></p>
+  </section>
+
+  <section id="rec" class="hidden" aria-live="polite"></section>
+
+  <section id="flow" class="flow-wrap hidden">
+  <svg viewBox="0 0 790 774" xmlns="http://www.w3.org/2000/svg" role="img"
+       aria-label="ER thrombosis pathway flowchart">
+    <defs>
+      <marker id="arw" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto">
+        <path d="M0,0 L8,4 L0,8 Z" fill="#133B35"/>
+      </marker>
+      <style>
+        .box{fill:#fff;stroke:#c9d5d1;stroke-width:1.5}
+        .box-admit{fill:#fbecea;stroke:#d99a92;stroke-width:1.5}
+        .box-pert{fill:#fbf1de;stroke:#dbc084;stroke-width:1.5}
+        .box-go{fill:#e2f0ea;stroke:#8bbfab;stroke-width:1.5}
+        .fc-title{font:600 13px -apple-system,Segoe UI,Arial,sans-serif;fill:#133B35}
+        .fc-item{font:12px -apple-system,Segoe UI,Arial,sans-serif;fill:#2b3d38}
+        .admit-h{font:700 14px -apple-system,Segoe UI,Arial,sans-serif;fill:#b23b2e}
+        .admit-b{font:11px -apple-system,Segoe UI,Arial,sans-serif;fill:#5a423f}
+        .pert-t{font:700 13px -apple-system,Segoe UI,Arial,sans-serif;fill:#b7791f}
+        .go-t{font:600 13px -apple-system,Segoe UI,Arial,sans-serif;fill:#0E5A52}
+        .fc-line{stroke:#133B35;stroke-width:1.6;fill:none}
+        .lbl{font:700 10.5px ui-monospace,Menlo,Consolas,monospace}
+        .lbl-yes{fill:#b23b2e} .lbl-no{fill:#b23b2e}
+        .lbl-none{fill:#5c6d68} .lbl-go{fill:#0E5A52}
+        .head{font:650 15px -apple-system,Segoe UI,Arial,sans-serif;fill:#fff}
+        .head2{font:11px ui-monospace,Menlo,Consolas,monospace;fill:#bfe0d7;letter-spacing:.12em}
+      </style>
+    </defs>
+
+    <rect x="90" y="16" width="300" height="44" rx="11" fill="#e4efed" stroke="#0E5A52" stroke-width="1.5"/>
+    <text x="240" y="43" text-anchor="middle" font-family="-apple-system,Segoe UI,Arial,sans-serif" font-size="13" font-weight="700" fill="#0E5A52">Patient with PE / DVT in Emergency</text>
+    <path class="fc-line" d="M240,60 L240,99" marker-end="url(#arw)"/>
+
+    <g transform="translate(0,72)">
+    <rect class="box" x="30" y="30" width="420" height="292" rx="11"/>
+    <text class="fc-title" x="46" y="53">Hestia criteria</text>
+    <text class="fc-item" x="46" y="76">•  Hemodynamically unstable</text>
+    <text class="fc-item" x="46" y="100">•  Considered for reperfusion strategy</text>
+    <text class="fc-item" x="46" y="124">•  High risk for bleeding</text>
+    <text class="fc-item" x="46" y="148">•  Oxygen supplementation indicated (hypoxia)</text>
+    <text class="fc-item" x="46" y="172">•  IV analgesia indicated</text>
+    <text class="fc-item" x="46" y="196">•  PE/DVT on anticoagulant (anticoagulation failure)</text>
+    <text class="fc-item" x="46" y="220">•  Other medical reasons for admission</text>
+    <text class="fc-item" x="46" y="244">•  Severe hepatic impairment</text>
+    <text class="fc-item" x="46" y="268">•  History of HIT</text>
+
+    <path class="fc-line" d="M450,146 L516,146" marker-end="url(#arw)"/>
+    <text class="lbl lbl-yes" x="483" y="139" text-anchor="middle">any YES</text>
+
+    <rect class="box-admit" x="520" y="82" width="240" height="212" rx="11"/>
+    <text class="admit-h" x="536" y="109">Admit patient</text>
+    <text class="admit-b" x="536" y="132">Enoxaparin 1 mg/kg BID if CrCl</text>
+    <text class="admit-b" x="536" y="149">&gt; 30 mL/min and no reperfusion</text>
+    <text class="admit-b" x="536" y="166">therapy planned.</text>
+    <text class="admit-b" x="536" y="194">Heparin infusion per protocol if</text>
+    <text class="admit-b" x="536" y="211">CrCl &lt; 30 mL/min or reperfusion</text>
+    <text class="admit-b" x="536" y="228">planned.</text>
+    <text class="admit-b" x="536" y="256" style="font-weight:700">Activate PERT code if</text>
+    <text class="admit-b" x="536" y="273" style="font-weight:700">activation criteria are met.</text>
+
+    <path class="fc-line" d="M240,322 L240,359" marker-end="url(#arw)"/>
+    <text class="lbl lbl-none" x="262" y="344">None</text>
+
+    <rect class="box" x="30" y="362" width="420" height="72" rx="11"/>
+    <text class="fc-title" x="46" y="391">Right heart strain (RV strain)</text>
+    <text class="fc-item" x="46" y="415">On imaging (CT/echo), elevated troponin, or elevated BNP</text>
+
+    <path class="fc-line" d="M450,398 L700,398"/>
+    <text class="lbl lbl-yes" x="483" y="391" text-anchor="middle">YES</text>
+
+    <path class="fc-line" d="M700,510 L700,294" marker-end="url(#arw)"/>
+
+    <path class="fc-line" d="M240,434 L240,471" marker-end="url(#arw)"/>
+    <text class="lbl lbl-none" x="262" y="456">None</text>
+
+    <rect class="box" x="30" y="474" width="420" height="72" rx="11"/>
+    <text class="fc-title" x="46" y="503">Discharge readiness</text>
+    <text class="fc-item" x="46" y="527">Follow-up within 1 week (virtual/physical) + home support</text>
+
+    <path class="fc-line" d="M450,510 L700,510"/>
+    <text class="lbl lbl-no" x="474" y="503">NO</text>
+
+    <path class="fc-line" d="M240,546 L240,583" marker-end="url(#arw)"/>
+    <text class="lbl lbl-go" x="262" y="568">YES</text>
+
+    <rect class="box-go" x="90" y="586" width="300" height="100" rx="11"/>
+    <text class="go-t" x="240" y="608" text-anchor="middle">Discharge from ER</text>
+    <text class="go-t" x="240" y="627" text-anchor="middle" style="font-weight:400;font-size:12px">arrange follow-up at</text>
+    <text x="240" y="652" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#0E5A52;font-family:-apple-system,Segoe UI,Arial,sans-serif">Internal Medicine post-ER</text>
+    <text x="240" y="672" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#0E5A52;font-family:-apple-system,Segoe UI,Arial,sans-serif">discharge clinic</text>
+    </g>
+  </svg>
+  </section>
+
+  <footer class="gov">
+    <p>Established and approved as a collaborative effort between the Thrombosis Program and the Internal Medicine Department, based on the best available evidence. Intended as a decision-support aid — it does not replace clinical judgement.</p>
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  const REPERF=1; // Hestia index for reperfusion (feeds anticoagulation choice)
+  const hestia=[
+    "Hemodynamically unstable",
+    "Considered for reperfusion strategy",
+    "High risk for bleeding",
+    "Oxygen supplementation indicated (hypoxia)",
+    "IV analgesia indicated",
+    {t:"PE/DVT diagnosed while on anticoagulant",n:"Anticoagulation failure"},
+    "Other medical reasons for admission",
+    "Severe hepatic impairment",
+    "History of HIT"
+  ];
+  const rv=["On imaging (CT/echo), elevated troponin, or elevated BNP"];
+  const disc=["Follow-up secured within 1 week (virtual or physical), and home support available"];
+
+  const $=id=>document.getElementById(id);
+  const A={h:{},r:{},d:{}};
+  const anyYes=o=>Object.values(o).some(v=>v==="yes");
+  const countYes=o=>Object.values(o).filter(v=>v==="yes").length;
+
+  function build(box,items,groupCls,store,onset){
+    box.innerHTML="";
+    items.forEach((it,i)=>{
+      const label=typeof it==="string"?it:it.t;
+      const note=typeof it==="string"?null:it.n;
+      const row=document.createElement("div");
+      row.className="qitem "+groupCls;
+      row.innerHTML=
+        '<span class="qlabel">'+label+(note?'<span class="note">'+note+'</span>':'')+'</span>'+
+        '<div class="seg"><button type="button" class="yes">Yes</button>'+
+        '<button type="button" class="no">No</button></div>';
+      const y=row.querySelector(".yes"), n=row.querySelector(".no");
+      y.onclick=()=>{store[i]="yes";y.classList.add("sel");n.classList.remove("sel");onset(i,"yes");};
+      n.onclick=()=>{store[i]="no";n.classList.add("sel");y.classList.remove("sel");onset(i,"no");};
+      box.appendChild(row);
+    });
+  }
+
+  function onAnswer(){
+    clearNudge();
+    if(anyYes(A.h)||anyYes(A.r)||A.d[0]==="no"){decide();return;} // any admit trigger is definitive
+    if(unansweredCount()===0)decide();                            // discharge needs every item answered
+  }
+  build($("hList"),hestia,"hestia",A.h,onAnswer);
+  build($("rList"),rv,"rv",A.r,onAnswer);
+  build($("dList"),disc,"disc",A.d,onAnswer);
+
+  // ---- one-tap section shortcuts ----
+  function setGroup(items,store,box,val){
+    items.forEach((_,i)=>{store[i]=val;});
+    box.querySelectorAll(".qitem").forEach(row=>{
+      row.querySelector(".yes").classList.toggle("sel",val==="yes");
+      row.querySelector(".no").classList.toggle("sel",val==="no");
+    });
+  }
+  $("qh").onclick=()=>{clearNudge();setGroup(hestia,A.h,$("hList"),"no");setGroup(rv,A.r,$("rList"),"no");if(unansweredCount()===0)decide();};
+
+  // ---- require every item answered before a recommendation ----
+  function unansweredCount(){
+    return (hestia.length-Object.keys(A.h).length)
+         + (rv.length-Object.keys(A.r).length)
+         + (disc.length-Object.keys(A.d).length);
+  }
+  function clearNudge(){
+    const n=$("nudge"); if(n)n.classList.add("hidden");
+  }
+  $("go").onclick=()=>{
+    if(anyYes(A.h)||anyYes(A.r)||A.d[0]==="no"){decide();return;} // any admit trigger is definitive
+    const u=unansweredCount();
+    if(u>0){
+      const n=$("nudge");
+      n.textContent="Answer all items to get a recommendation ("+u+" left).";
+      n.classList.remove("hidden");
+      return;
+    }
+    decide();
+  };
+
+  function decide(){
+    let via;
+    if(anyYes(A.h)||anyYes(A.r))via="admit";
+    else if(A.d[0]==="yes")via="disc-ok";
+    else via="disc-no";
+    render(via);
+  }
+
+  function trace(via){
+    const t=[];
+    if(via==="hestia"){t.push("Hestia: "+countYes(A.h)+" criterion flagged Yes");return t;}
+    t.push("Hestia: none flagged");
+    if(via==="rv"){t.push("RV strain: present");return t;}
+    t.push("RV strain: none flagged");
+    t.push("Discharge readiness: "+countYes(A.d)+"/2 met");
+    return t;
+  }
+
+  // ---- anticoagulation resolver (auto-pick from CrCl + reperfusion) ----
+  function drugFor(crcl,reperf){
+    if(crcl==="yes"||reperf==="yes")
+      return {t:"Heparin infusion, per protocol",why:"CrCl < 30 mL/min or reperfusion planned."};
+    if(crcl==="no"&&reperf==="no")
+      return {t:"Enoxaparin 1 mg/kg BID",why:"CrCl > 30 mL/min, no reperfusion planned."};
+    return null;
+  }
+  function doseHtml(){
+    return '<div class="dose">'+
+      '<p class="dosetxt">Start <b>enoxaparin 1 mg/kg BID</b> if CrCl &gt; 30 mL/min and no reperfusion therapy planned.</p>'+
+      '<p class="dosetxt"><b>Heparin infusion</b>, per protocol, if CrCl &lt; 30 mL/min or reperfusion planned.</p></div>';
+  }
+
+  // ---- copy-for-notes ----
+  function flaggedLabels(items,store){
+    return items.map((it,i)=>({i,l:(typeof it==="string"?it:it.t)}))
+      .filter(x=>store[x.i]==="yes").map(x=>x.l);
+  }
+  const ANTICOAG="Anticoagulation: enoxaparin 1 mg/kg BID if CrCl>30 mL/min and no reperfusion, or heparin infusion per protocol if CrCl<30 mL/min or reperfusion planned.";
+  function composeNote(via){
+    const now=new Date();
+    const t=now.toLocaleString([], {year:"numeric",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"});
+    let s="iMER VTE pathway — "+t+" — ";
+    if(via==="disc-ok"){
+      s+="DISCHARGE from ER; follow-up at Internal Medicine post-ER discharge clinic.";
+    }else{
+      s+="ADMIT.";
+      if(anyYes(A.r)) s+=" Activate PERT code (right heart strain present).";
+      if(via==="disc-no") s+=" Discharge readiness not met.";
+      const f=flaggedLabels(hestia,A.h);
+      if(f.length) s+=" Hestia positive ("+f.join("; ")+").";
+      s+=" "+ANTICOAG;
+    }
+    return s;
+  }
+  const ICONROW='<div class="rec-actions">'+
+    '<button class="iconbtn" id="redit" title="Change answers" aria-label="Change answers"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>'+
+    '<button class="iconbtn" id="rs" title="Start over" aria-label="Start over"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>'+
+    '</div>';
+  function copyText(txt,btn){
+    const flash=()=>{btn.classList.add("ok");setTimeout(()=>btn.classList.remove("ok"),1400);};
+    function legacy(){
+      const ta=document.createElement("textarea");ta.value=txt;ta.style.position="fixed";ta.style.opacity="0";
+      document.body.appendChild(ta);ta.focus();ta.select();
+      try{document.execCommand("copy");flash();}catch(e){}
+      document.body.removeChild(ta);
+    }
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(flash,legacy);}
+    else legacy();
+  }
+
+  function render(via){
+    $("form").classList.add("hidden");
+    document.querySelectorAll(".top-chrome").forEach(e=>e.classList.add("hidden"));
+    const box=$("rec");box.classList.remove("hidden");
+    const admit = via!=="disc-ok";
+
+    let html;
+    if(admit){
+      const why = via==="disc-no" ? '<p>Discharge readiness not met.</p>' : "";
+      html='<div class="rec admit"><h2>Admit patient</h2>'+why+doseHtml()+
+        '<p class="pertnote">Activate PERT code if activation criteria are fulfilled</p>'+
+        ICONROW+'</div>';
+    }else{
+      html='<div class="rec go"><h2>Discharge from ER</h2>'+
+        '<p>Arrange follow-up — <b>Internal Medicine post-ER discharge clinic</b>.</p>'+ICONROW+'</div>';
+    }
+    box.innerHTML=html;
+    $("redit").onclick=()=>{$("rec").classList.add("hidden");document.querySelectorAll(".top-chrome").forEach(e=>e.classList.remove("hidden"));$("form").classList.remove("hidden");window.scrollTo({top:0,behavior:"smooth"});};
+    $("rs").onclick=reset;
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+
+  function reset(){
+    for(const k in A.h)delete A.h[k];
+    for(const k in A.r)delete A.r[k];
+    for(const k in A.d)delete A.d[k];
+    document.querySelectorAll("#form .seg button").forEach(b=>b.classList.remove("sel"));
+    clearNudge();
+    document.querySelectorAll(".top-chrome").forEach(e=>e.classList.remove("hidden"));
+    $("rec").classList.add("hidden");$("form").classList.remove("hidden");
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+
+  // ---- view toggle ----
+  const tabTool=$("tabTool"), tabFlow=$("tabFlow");
+  function showFlow(on){
+    $("flow").classList.toggle("hidden",!on);
+    $("form").classList.toggle("hidden",on);
+    if(on)$("rec").classList.add("hidden");
+    tabTool.classList.toggle("sel",!on);
+    tabFlow.classList.toggle("sel",on);
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+  tabTool.onclick=()=>showFlow(false);
+  tabFlow.onclick=()=>showFlow(true);
+})();
+</script>
+</body>
+</html>
